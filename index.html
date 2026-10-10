@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shubh Deepavali | 3D Interactive Diwali Greeting</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Great+Vibes&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Three.js and OrbitControls -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- Canvas Confetti for celebratory bursts -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <!-- 3D Canvas Background -->
+  <div id="canvas-container"></div>
+
+  <!-- Ambient Golden Floating Sparks Overlay -->
+  <div class="golden-vignette"></div>
+
+  <!-- TOP HEADER / FESTIVE NAVBAR -->
+  <header class="festive-navbar">
+    <div class="logo-box">
+      <span class="om-symbol">🪔</span>
+      <div class="title-text">
+        <span class="sub-festival">शुभ दीपावली</span>
+        <span class="main-festival">Happy Diwali</span>
+      </div>
+    </div>
+
+    <!-- Live Permission Status Indicators -->
+    <div class="permission-pills">
+      <div class="perm-pill" id="pill-camera" title="Camera: Click to toggle">
+        <span class="perm-icon">📹</span>
+        <span class="perm-label">Camera</span>
+        <span class="perm-dot" id="dot-camera"></span>
+      </div>
+      <div class="perm-pill" id="pill-mic" title="Microphone: Click to toggle">
+        <span class="perm-icon">🎙️</span>
+        <span class="perm-label">Voice / Mic</span>
+        <span class="perm-dot" id="dot-mic"></span>
+      </div>
+      <div class="perm-pill" id="pill-location" title="Location: Click to toggle">
+        <span class="perm-icon">📍</span>
+        <span class="perm-label">Location</span>
+        <span class="perm-dot" id="dot-location"></span>
+      </div>
+      <div class="perm-pill" id="pill-contacts" title="Contacts: Click to select friends or family">
+        <span class="perm-icon">👥</span>
+        <span class="perm-label">Contacts</span>
+        <span class="perm-dot" id="dot-contacts"></span>
+      </div>
+      <button id="btn-audio-music" class="icon-btn" title="Toggle Festive Music">
+        <span id="music-icon">🎵</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- GEOLOCATION GREETING BANNER -->
+  <div class="location-banner" id="location-banner">
+    <div class="location-content">
+      <span class="sparkle-icon">✨</span>
+      <span id="location-text">Detecting your auspicious location for Diwali blessings...</span>
+      <span class="sparkle-icon">🪔</span>
+    </div>
+  </div>
+
+  <!-- FLOATING INTERACTIVE CONTROLS HUD -->
+  <aside class="festive-hud">
+    <button class="hud-btn" id="btn-light-diya" title="Light/Extinguish Sacred Diya">
+      <span class="hud-icon">🕯️</span>
+      <span class="hud-text">Light Diya</span>
+    </button>
+    <button class="hud-btn" id="btn-burst-fireworks" title="Launch Mega Fireworks Show">
+      <span class="hud-icon">🎆</span>
+      <span class="hud-text">Burst Crackers</span>
+    </button>
+    <button class="hud-btn" id="btn-release-lanterns" title="Release Sky Lanterns">
+      <span class="hud-icon">🏮</span>
+      <span class="hud-text">Sky Lanterns</span>
+    </button>
+    <button class="hud-btn" id="btn-open-photobooth" title="Open Diwali AR Photobooth">
+      <span class="hud-icon">📸</span>
+      <span class="hud-text">AR Photobooth</span>
+    </button>
+    <button class="hud-btn" id="btn-open-contacts-db" title="Manage Contacts Database">
+      <span class="hud-icon">🗄️</span>
+      <span class="hud-text">Contacts DB</span>
+    </button>
+    <button class="hud-btn" id="btn-customize-wish" title="Customize Personal Greeting">
+      <span class="hud-icon">💌</span>
+      <span class="hud-text">Send Greeting</span>
+    </button>
+  </aside>
+
+  <!-- MAIN CENTER GREETING HERO CARD -->
+  <main class="hero-overlay" id="hero-overlay">
+    <div class="greeting-ornament">
+      <div class="rangoli-icon">☸</div>
+      <h3 class="festive-tagline" id="festive-tagline">Festival of Lights, Joy & Prosperity</h3>
+      <h1 class="festive-title" id="greeting-title">Wishing You a Joyous Diwali!</h1>
+      <p class="greeting-message" id="greeting-body">
+        May the divine glow of infinite diyas illuminate your life with health, happiness, prosperity, and endless triumph of light over darkness.
+      </p>
+
+      <div class="personalized-tag" id="personalized-tag">
+        <span id="tag-from-line">With heartfelt festive prayers</span>
+      </div>
+
+      <!-- Live Voice Reactivity Visualizer (when Mic is active) -->
+      <div class="voice-reactive-bar" id="voice-reactive-bar">
+        <span class="mic-status-text">🎙️ Speak or sing "Happy Diwali" to make the holy flame dance!</span>
+        <div class="visualizer-bars">
+          <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+          <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+          <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button class="gold-cta-btn" id="btn-interact-3d">
+          <span class="cta-sparkle">✨</span> Explore 3D Diya & Skies <span class="cta-sparkle">✨</span>
+        </button>
+      </div>
+
+      <div class="interaction-hint">
+        <span>💡 Click anywhere on the 3D sky to launch custom fireworks! Drag to rotate 3D view.</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- PERMISSIONS ONBOARDING MODAL -->
+  <div class="modal-backdrop" id="permission-modal">
+    <div class="modal-card festive-frame">
+      <div class="modal-diya">🪔</div>
+      <h2 class="modal-title">Welcome to the 3D Diwali Celebration</h2>
+      <p class="modal-desc">
+        To immerse yourself in the divine festival of lights, this experience asks for your browser permissions:
+      </p>
+
+      <div class="permission-feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">📹</div>
+          <div class="feature-info">
+            <h4>Live Festive AR Photobooth</h4>
+            <p>Snap a glowing Diwali greeting selfie surrounded by 3D sparklers & golden diyas to share with family.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">🎙️</div>
+          <div class="feature-info">
+            <h4>Voice-Activated Sacred Flame</h4>
+            <p>Your holy Diya's flame will dance and radiate dynamically to your voice wishes and festive chants.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">📍</div>
+          <div class="feature-info">
+            <h4>Personalized Location Blessings</h4>
+            <p>Customizes your greeting card and festival wishes based on your city and local time zone.</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">👥</div>
+          <div class="feature-info">
+            <h4>Festive Contacts Integration</h4>
+            <p>Quickly select family & friends from your contacts to send custom Diwali wishes & cards directly.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button class="gold-btn" id="btn-grant-permissions">
+          ✨ Grant Permissions & Celebrate ✨
+        </button>
+        <button class="text-btn" id="btn-skip-permissions">
+          Continue with Standard Mode
+        </button>
+      </div>
+      <p class="privacy-note">🔒 Your privacy is honored. All video, audio, and location data remain strictly inside your browser.</p>
+    </div>
+  </div>
+
+  <!-- DIWALI AR PHOTOBOOTH MODAL -->
+  <div class="modal-backdrop hidden" id="photobooth-modal">
+    <div class="modal-card photobooth-card festive-frame">
+      <div class="modal-header">
+        <h2 class="modal-title">🪔 Diwali Festive AR Photobooth</h2>
+        <button class="close-btn" id="close-photobooth">✕</button>
+      </div>
+      
+      <div class="camera-stage">
+        <!-- Live Video Element -->
+        <video id="webcam-video" autoplay playsinline muted></video>
+        <!-- Overlay Canvas for stickers, sparklers, and festive greeting border -->
+        <canvas id="photo-overlay-canvas"></canvas>
+
+        <div class="ar-decorations">
+          <div class="ar-corner tl">🪔</div>
+          <div class="ar-corner tr">🪔</div>
+          <div class="ar-corner bl">✨</div>
+          <div class="ar-corner br">✨</div>
+          <div class="ar-badge" id="ar-badge-name">Happy Diwali 2026</div>
+        </div>
+      </div>
+
+      <div class="photobooth-controls">
+        <button class="gold-btn" id="btn-capture-photo">📸 Capture Festive Card</button>
+        <button class="gold-btn hidden" id="btn-download-photo">💾 Download Card</button>
+        <button class="text-btn hidden" id="btn-retake-photo">🔄 Retake</button>
+      </div>
+
+      <!-- Snapshot Preview Result Container -->
+      <div class="snapshot-preview hidden" id="snapshot-preview-container">
+        <h4>Your Festive Card Ready to Share!</h4>
+        <img id="snapshot-img" alt="Diwali Greeting Snapshot" />
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMIZE GREETING WISH MODAL -->
+  <div class="modal-backdrop hidden" id="wish-modal">
+    <div class="modal-card festive-frame">
+      <div class="modal-header">
+        <h2 class="modal-title">💌 Create Personalized Diwali Wish</h2>
+        <button class="close-btn" id="close-wish">✕</button>
+      </div>
+
+      <form id="greeting-form" class="festive-form">
+        <div class="form-group">
+          <label for="input-recipient">Recipient's Name (To):</label>
+          <div class="input-with-action">
+            <input type="text" id="input-recipient" placeholder="e.g. Grandma, Aman, Priya" maxlength="30" required>
+            <button type="button" class="gold-btn sm" id="btn-pick-contact" title="Pick from contacts">👥 Pick Contact</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="input-sender">Your Name (From):</label>
+          <input type="text" id="input-sender" placeholder="e.g. Sharma Family, Rahul" maxlength="30" required>
+        </div>
+
+        <div class="form-group">
+          <label for="input-message">Custom Festive Message:</label>
+          <textarea id="input-message" rows="3" placeholder="May this Diwali bring infinite peace, prosperity, and light to your lovely family!">May this divine Festival of Lights brighten your life with happiness, vibrant health, and boundless wealth. Shubh Deepavali!</textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Festival Template Theme:</label>
+          <div class="theme-selector">
+            <label><input type="radio" name="wish-theme" value="gold" checked> Royal Gold</label>
+            <label><input type="radio" name="wish-theme" value="crimson"> Sacred Crimson</label>
+            <label><input type="radio" name="wish-theme" value="night"> Mystic Purple</label>
+          </div>
+        </div>
+
+        <div class="modal-buttons">
+          <button type="submit" class="gold-btn">Apply & Generate Share Link</button>
+        </div>
+      </form>
+
+      <div class="share-box hidden" id="share-box">
+        <p class="share-title">🎉 Your personalized link is ready:</p>
+        <div class="share-input-group">
+          <input type="text" id="share-link-input" readonly>
+          <button class="gold-btn sm" id="btn-copy-link">Copy</button>
+        </div>
+        <div class="share-actions-group">
+          <button type="button" class="gold-btn sm" id="btn-share-whatsapp">💬 Send via WhatsApp</button>
+          <button type="button" class="text-btn sm" id="btn-share-native">📤 Share with Apps</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTACTS DATABASE MANAGER MODAL -->
+  <div class="modal-backdrop hidden" id="contacts-modal">
+    <div class="modal-card contacts-db-card festive-frame">
+      <div class="modal-header">
+        <h2 class="modal-title">🗄️ User Contacts Database</h2>
+        <button class="close-btn" id="close-contacts">✕</button>
+      </div>
+
+      <p class="modal-subtitle" style="font-size: 0.85rem; color: #fed7aa; margin-bottom: 0.8rem; text-align: left;">
+        Contacts retrieved directly from visiting users who access this website on their mobile device and grant permissions are stored in the database below:
+      </p>
+
+      <div class="db-summary-bar">
+        <span class="db-count-badge">Contacts in DB: <strong id="db-contact-count">0</strong></span>
+        <div class="db-bar-actions">
+          <button type="button" class="gold-btn sm" id="btn-sync-phone-all" title="Retrieve all contacts from phone">📱 Retrieve Phone Contacts</button>
+          <button type="button" class="text-btn sm" id="btn-export-csv" title="Download all contacts as CSV spreadsheet">📥 Export CSV</button>
+          <button type="button" class="text-btn sm danger" id="btn-clear-contacts-db" title="Clear database">🗑️</button>
+        </div>
+      </div>
+
+      <div class="db-search-box">
+        <input type="text" id="db-search-input" placeholder="🔍 Search retrieved contacts by name, phone, or location...">
+      </div>
+
+      <div class="db-contacts-container" id="db-contacts-list">
+        <!-- Rendered contacts from visiting users -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Scripts -->
+  <script src="db.js"></script>
+  <script src="audioSynth.js"></script>
+  <script src="scene3d.js"></script>
+  <script src="permissions.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
